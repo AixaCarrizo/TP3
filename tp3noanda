@@ -1,0 +1,297 @@
+#include <cstdlib>
+#include <iostream>
+#define INFI  9000
+#define MAXNODOS  5
+#define no_visitado 0
+#define visitado 1
+#define CANTCIUDADES 8
+using namespace std;
+
+
+class ciudad{
+	int estado;
+	string nombreciudad;
+	//int distancias[CANTCIUDADES][CANTCIUDADES];
+   
+    
+    void setNombreCiudad(string nombre){nombreciudad=nombre;};
+    //void setDistancias(int dist[CANTCIUDADES][CANTCIUDADES]);//por el momneto esto no lo use y pienso seriamente en borrarlo
+    string getNombreCiudad(){return nombreciudad;};
+    //int getdistanciaentreciudades(string a, string b, ciudad* ciudades[],int matrizdistancias[CANTCIUDADES][CANTCIUDADES]);
+    void set_estado(int a) {estado=a; };
+
+    public:
+    void setCiudad(string nombre){setNombreCiudad(nombre);};
+    //void setDist(int dist[CANTCIUDADES][CANTCIUDADES]){setDistancias (dist);};
+    string getNombre(){return getNombreCiudad();};
+    //int getDistancia(string a, string b,ciudad * ciudades[],int matrizdistancias[CANTCIUDADES][CANTCIUDADES]){return getdistanciaentreciudades(a, b,ciudades, matrizdistancias);};
+    void setEstado(int a){set_estado(a);};
+    int getEstado(){return estado;};
+};
+
+typedef ciudad * pciudad;
+int ubicacionCiudad(string nombre, pciudad  ciudades[]);
+
+
+class Nodo{
+    private: 
+        pciudad ciudad;
+        Nodo *next;
+    public:
+        Nodo() {next=NULL;};
+        Nodo(pciudad a) {ciudad=a; next=NULL;};
+        void set_ciudad(pciudad a) {ciudad=a; };
+        void set_next(Nodo *n) {next=n; };
+        pciudad get_ciudad() {return ciudad; };
+        Nodo *get_next() {return next; };
+        bool es_vacio() {return next==NULL;}
+        
+};
+
+class Lista{
+    private: Nodo *czo;
+    public:
+            Lista() {czo=new Nodo();};
+            Lista(Nodo *n) {czo=n;};
+            //~Lista(void);
+            void add(pciudad d);
+            bool esvacia(void);
+            pciudad cabeza(void);
+            Lista *resto(void);
+            //string toPrint(string p);   
+            void impre(void);
+            int size();
+            void borrar(void); //borra la cabeza
+            void borrar_last();//borra el ultimo
+            //void concat(Lista *l1);
+            Lista *copy(void);
+            void tomar(int n);
+            pciudad last();
+};
+
+//-------- Metodos de Lista -------------------
+pciudad Lista::last()
+{ if(!this->esvacia()){
+    if(this->resto()->esvacia())return this->cabeza();
+    return this->resto()->last();
+  }return 0;
+}
+int Lista::size()
+{ 
+     if (this->esvacia()) return 0;
+     return 1+this->resto()->size();
+}
+void Lista::impre(void)
+{ Nodo *aux;
+  aux=czo;
+    while(aux->get_next()!=NULL){
+         cout<<aux->get_ciudad()->getNombre()<<endl;
+         aux=aux->get_next();
+    }
+}
+void Lista::add(pciudad d)
+{  
+     Nodo *nuevo=new Nodo(d);
+     nuevo->set_next(czo);
+     czo=nuevo;
+}
+bool Lista::esvacia(void)
+{   
+    return czo->es_vacio();
+}
+pciudad Lista::cabeza(void)
+{ 
+  if(this->esvacia()){
+                cout<<" Error, Cabeza de lista vacia";
+                return NULL; 
+  }
+  return czo->get_ciudad();
+}
+Lista *Lista::resto(void)
+{ 
+      Lista *l=new Lista(czo->get_next());
+      return (l);
+}
+/*string Lista::toPrint(string p)
+{ 
+     if (this->esvacia()) {
+        return p;
+     } else {
+       std::ostringstream stm;
+       stm << this->cabeza()<<" - "<< this->resto()->toPrint(p) << endl;
+      //cout<<endl<<" stm.str()= "<<stm.str()<<endl;
+       return stm.str();
+     }
+}*/
+
+void Lista::borrar(void)
+{ //borra el nodo cabeza
+  if(!this->esvacia()){
+         Nodo *tmp=czo;
+         czo=czo->get_next();
+         delete tmp;
+  }
+}
+void Lista::borrar_last()
+{ // borra el ultimo nodo
+   if(!this->esvacia()){
+      if((czo->get_next())->get_next()==NULL){
+         delete czo->get_next();
+         czo->set_next(NULL);
+      }
+      else this->resto()->borrar_last(); 
+   }  
+}
+/*void Lista::concat(Lista *l1)
+{// le transfiere los datos de l1 a this
+   if (!(l1->esvacia())){
+      this->concat(l1->resto());
+      this->add(l1->cabeza());
+   }
+}*/
+
+
+class Cola:public Lista{
+  public:
+  	  Cola(){Lista();};
+      Cola(pciudad ciud){Lista(new Nodo(ciud));};
+      ~Cola(void);
+      pciudad tope();
+      bool colavacia(){this->esvacia();};
+      void encolar(pciudad a) ;
+      void desencolar();
+      pciudad ultimo();
+      //string imprimir(string s);
+};
+//-------- Metodos de Cola --------------------
+pciudad Cola::tope(void)
+{  return this->last();
+}
+void Cola::encolar(pciudad a)
+{  this->add(a);
+}
+void Cola::desencolar(void)
+{  this->borrar_last();
+}
+pciudad Cola::ultimo(void)
+{   return this->cabeza();
+}
+/*string Cola::imprimir(string s)
+{  return this->toPrint(s);
+}*/
+
+
+
+
+
+
+
+
+
+
+/*void ciudad::setDistancias(int dist[CANTCIUDADES][CANTCIUDADES]){
+	for(int i=0; i<CANTCIUDADES; i++){
+		for(int j=0; j<CANTCIUDADES; j++){
+			distancias[i][j]=dist[i][j];
+		}
+	}
+}
+*/
+
+int getdistanciaentreciudades(string a, string b, pciudad ciudades[],int matrizdistancias[CANTCIUDADES][CANTCIUDADES]){
+	int ciudad1=ubicacionCiudad(a,ciudades);int ciudad2 =ubicacionCiudad(b, ciudades);
+	return matrizdistancias[ciudad1][ciudad2];
+}
+cargarCiudades(pciudad ciudades[]){
+	string nombres[CANTCIUDADES]={"MA", "BA", "RO", "PA", "LO", "BE", "AM", "MO"};
+	for(int i=0; i<CANTCIUDADES; i++){
+		ciudades[i]=new ciudad();
+		ciudades[i]->setCiudad(nombres[i]);
+		ciudades[i]->setEstado(no_visitado);
+	}
+}
+
+int ubicacionCiudad(string nombre, pciudad  ciudades[] ){
+	for(int i=0; i<CANTCIUDADES;i++){
+		if(ciudades[i]->getNombre()==nombre){
+			return i;
+		}
+    }
+}
+
+
+void toPrint(pciudad ciudades[], int matrizdistancias[CANTCIUDADES][CANTCIUDADES]){
+	  for(int i=0; i<CANTCIUDADES; i++){
+  	cout<<"ciudad: "<<ciudades[i]->getNombre()<<"   Nro de ciudad: "<<i<< "    Estado: "<<ciudades[i]->getEstado()<<endl<<endl;
+  }
+  cout<<"matriz de distancias"<<endl;
+  for(int i=0; i<CANTCIUDADES; i++){
+  	cout<<endl;
+  	for(int j=0; j<CANTCIUDADES; j++){
+  		cout<<matrizdistancias[i][j]<<"  ";
+	  }
+  }
+}
+
+void Busqprof(int v, pciudad ciudades[], int peso[CANTCIUDADES][CANTCIUDADES]){//esto es el codigo de ayme de busq en profundidad 
+	ciudades[v]->setEstado(visitado);
+	for(int w=0;w<CANTCIUDADES;w++){
+       if((peso[v][w]!=0)&&(ciudades[w]->getEstado()==no_visitado)){
+			 Busqprof(w, ciudades, peso);
+       }
+
+	   }
+}
+
+void BusAmplitud(pciudad inicial, Cola *c, pciudad ciudades[]){//aca quise aplicar lo que dio el wolfi pero todo malio sal
+	pciudad vk;
+	int ubicacion;
+	Cola *visitados=new Cola();
+	Cola *proximos=new Cola();
+	 c->encolar(inicial);
+	while(!(c->colavacia())){
+		vk = c->tope();
+		c->desencolar();
+		ubicacion=ubicacionCiudad(vk->getNombre(), ciudades);
+		for(int i=0; i<CANTCIUDADES;i++){
+			if(ciudades[i]->getEstado()!=visitado && i!=ubicacion){
+				proximos->encolar(ciudades[i]);
+			}
+		}
+		visitados->encolar(vk);
+		while(!(proximos->esvacia())){
+			c->encolar(proximos->tope());
+			proximos->desencolar();
+		}
+	}
+}
+
+
+
+
+
+
+int main(int argc, char *argv[])
+{  
+  pciudad ciudades[CANTCIUDADES];
+  int matrizdistancias[CANTCIUDADES][CANTCIUDADES]={   0, 150, 180, 210, 340, 310, 280, 600,
+                                                     150,   0, 220, 200, 350, 290, 220, 590,
+                                                     180, 220,   0, 350, 440, 240, 200, 700, 
+													 210, 200, 350,   0,  95, 180, 200, 500,
+													 340, 350, 440,  95,   0, 300, 180, 800,
+													 310, 290, 240, 180, 300,   0, 150, 240,
+													 280, 220, 200, 200, 180, 150,   0, 780, 
+													 600, 590, 700, 500, 800, 240, 780,   0  };
+
+
+  cargarCiudades(ciudades);
+  toPrint(ciudades, matrizdistancias);
+  
+  cout<<endl<<endl<<"distancia madrid->londres: "<<getdistanciaentreciudades("MA", "LO", ciudades, matrizdistancias)<<endl;
+  cout<<"distancia londres->madrid: "<<getdistanciaentreciudades("LO", "MA", ciudades, matrizdistancias)<<endl;
+  Cola *c=new Cola();
+  BusAmplitud(ciudades[0],c, ciudades);
+  toPrint(ciudades, matrizdistancias);
+  
+}
+
